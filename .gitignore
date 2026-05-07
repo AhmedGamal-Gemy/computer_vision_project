@@ -44,12 +44,6 @@ data/
 *.tar.gz
 *.kaggle.json
 
-# --- Visualization Outputs (regenerate via pipeline) ---
-*.png
-*.jpg
-*.jpeg
-*.svg
-
 # --- Configuration (contains local paths / secrets) ---
 # NOTE: config.yaml is tracked. Use config.local.yaml for personal overrides.
 config.local.yaml
