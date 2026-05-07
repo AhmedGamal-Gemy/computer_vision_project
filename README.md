@@ -6,31 +6,39 @@ A computer vision pipeline for preprocessing, segmenting, and classifying chest 
 
 - Python 3.10+
 - uv package manager
-- Kaggle account (for manual dataset download)
+- Kaggle account (for dataset download)
 
 ## Setup Steps
 
-1. Clone the repository
-2. Initialize the project with uv:
+1. Clone the repository and enter the project directory:
    ```bash
-   uv init medical-cv && cd medical-cv
+   cd medical-cv
    ```
-3. Install dependencies:
+
+2. Install dependencies:
    ```bash
-   uv add opencv-python scikit-image scikit-learn streamlit joblib matplotlib seaborn pandas numpy
+   uv sync
    ```
-4. Download the dataset from Kaggle:
-   - Go to [Chest X-Ray Images (Pneumonia) on Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia)
-   - Download the dataset manually (Kaggle CLI is not configured in this project)
-   - Extract the contents into the `data/` directory
-5. Train the models:
+
+3. Download the dataset (auto-checks if already exists):
+   ```bash
+   uv run python scripts/download_dataset.py
+   ```
+
+4. Train the models:
    ```bash
    uv run python src/pipeline.py
    ```
-6. Launch the web application:
+
+5. Launch the web application:
    ```bash
    uv run streamlit run app/app.py
    ```
+
+## Documentation
+
+- **Learning Guide**: [`docs/LEARNING_GUIDE.md`](docs/LEARNING_GUIDE.md) - Comprehensive guide covering all 8 pipeline stages with detailed explanations of concepts, implementation, and design decisions
+- **Team Work Split**: [`docs/TEAM_WORK_SPLIT.md`](docs/TEAM_WORK_SPLIT.md) - 8-member team responsibility breakdown with dependency chain
 
 ## Pipeline Diagram
 
@@ -40,13 +48,13 @@ A computer vision pipeline for preprocessing, segmenting, and classifying chest 
 |  (Rotation,  |     |  (Gaussian+ |     |  (Otsu+     |     |  (GLCM+     |     |  (Over/Under|     |  (SVM/RF)   |
 |   Flip, etc) |     |   Median)    |     |  K-Means)   |     |  Shape)     |     |   sample)   |     |             |
 +-------------+     +-------------+     +-------------+     +-------------+     +-------------+     +-------------+
-                                                                                      |
-                                                                                      v
-                                                                              +-------------+
-                                                                              |  Explain    |
-                                                                              |  (Feature   |
-                                                                              |  Importance)|
-                                                                              +-------------+
+                                                                                       |
+                                                                                       v
+                                                                               +-------------+
+                                                                               |  Explain    |
+                                                                               |  (Feature   |
+                                                                               |  Importance)|
+                                                                               +-------------+
 ```
 
 ## Feature List
@@ -80,6 +88,33 @@ Address dataset imbalance with three strategies:
 
 Toggle balancing in `src/pipeline.py`: `APPLY_BALANCING = True`
 
+## Configuration
+
+All pipeline parameters are configurable via `config.yaml` - no hardcoded constants:
+
+- **Preprocessing**: Image size, filter kernels, normalization settings
+- **Segmentation**: Otsu thresholding, K-Means clustering parameters
+- **Feature Extraction**: GLCM distances, angles, levels
+- **Classification**: SVM kernel/C/gamma, Random Forest estimators
+- **Augmentation**: Rotation angles, brightness/contrast ranges, flip probabilities
+- **Balancing**: Strategy selection (oversample/undersample/SMOTE), noise parameters
+- **Explainability**: Permutation repeats, influence thresholds
+- **Visualization**: DPI, figure sizes, color schemes
+
+Configuration uses a two-layer system:
+1. **Python dataclasses** (`src/config.py`) define defaults with type safety
+2. **YAML file** (`config.yaml`) overrides any default without code changes
+
+Example override in `config.yaml`:
+```yaml
+classification:
+  svm_c: 15.0
+  rf_n_estimators: 300
+
+augmentation:
+  max_rotation_angle: 20.0
+```
+
 ## Model Explainability
 
 Understand WHY the model made each prediction:
@@ -103,34 +138,46 @@ The pipeline generates the following visualizations in `models/`:
 
 ## Streamlit App Features
 
-The web application (`app/app.py`) includes:
+The web application (`app/app.py`) includes two tabs:
 
+### Tab 1: Analysis
 - **Model selection**: Choose between SVM and Random Forest
 - **Visual pipeline**: Original, preprocessed, Otsu mask, K-Means segmentation
 - **Prediction display**: Class badge, confidence score, feature table, bar chart
 - **Explainability panel**: Per-prediction feature contribution analysis (toggleable)
 - **Augmentation preview**: See how transforms affect the uploaded image (toggleable)
 
+### Tab 2: Model Report
+- **Performance metrics dashboard**: Accuracy, precision, recall, F1 for both models
+- **Dataset statistics**: Test sample count, class distribution, feature count
+- **Visualization gallery**: All generated plots from training
+- **Feature importance table**: Sorted Random Forest importances with 4 decimal precision
+
 ## Project Structure
 
 ```
 medical-cv/
 ├── scripts/
-|   └── download_dataset.py      # Smart dataset downloader
+│   └── download_dataset.py      # Smart dataset downloader with existence check
 ├── src/
-|   ├── preprocessing.py         # Image loading, resizing, filtering, normalization
-|   ├── segmentation.py          # Otsu thresholding, K-Means clustering
-|   ├── feature_extraction.py    # GLCM texture + shape features
-|   ├── classification.py        # SVM/RF training, evaluation, prediction
-|   ├── pipeline.py              # End-to-end training orchestration
-|   ├── augmentation.py          # Image augmentation pipeline
-|   ├── balancing.py             # Class balancing utilities
-|   ├── explainability.py        # Feature-level model explainability
-|   └── visualization.py         # ROC, PR, confusion matrix, comparison plots
+│   ├── config.py                # Centralized configuration system
+│   ├── preprocessing.py         # Image loading, resizing, filtering, normalization
+│   ├── segmentation.py          # Otsu thresholding, K-Means clustering
+│   ├── feature_extraction.py    # GLCM texture + shape features
+│   ├── classification.py        # SVM/RF training, evaluation, prediction
+│   ├── pipeline.py              # End-to-end training orchestration
+│   ├── augmentation.py          # Image augmentation pipeline
+│   ├── balancing.py             # Class balancing utilities
+│   ├── explainability.py        # Feature-level model explainability
+│   └── visualization.py         # ROC, PR, confusion matrix, comparison plots
 ├── app/
-|   └── app.py                   # Streamlit web application
+│   └── app.py                   # Streamlit web application (Analysis + Model Report tabs)
 ├── models/                      # Trained models and visualization outputs
 ├── data/                        # Dataset (chest_xray/)
-└── docs/
-    └── TEAM_WORK_SPLIT.md       # 8-member team responsibility breakdown
+├── docs/
+│   ├── LEARNING_GUIDE.md        # Comprehensive pipeline learning guide
+│   └── TEAM_WORK_SPLIT.md       # 8-member team responsibility breakdown
+├── config.yaml                  # All configurable parameters
+├── pyproject.toml               # Project dependencies
+└── README.md                    # This file
 ```
