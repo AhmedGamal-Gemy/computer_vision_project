@@ -79,19 +79,20 @@ VISUALIZATION_FILES = {
 
 
 @st.cache_data
-def compute_model_metrics(scaler, svm_model, rf_model, cfg):
+def compute_model_metrics(_scaler, _svm_model, _rf_model, cfg):
     """Compute and return metrics for both models on the test set.
 
     WHY: Streamlit reruns the entire script on every interaction. Without
     caching, metrics would be recomputed from scratch on each tab switch or
     widget change, causing unnecessary delays. @st.cache_data stores the
-    result keyed by the model objects, so recomputation only happens when
-    models are reloaded.
+    result keyed by the config object, so recomputation only happens when
+    config changes. Leading underscores on model/scaler args tell Streamlit
+    not to hash them (sklearn objects are not hashable).
 
     Args:
-        scaler: Fitted StandardScaler for feature scaling.
-        svm_model: Trained SVM classifier.
-        rf_model: Trained Random Forest classifier.
+        _scaler: Fitted StandardScaler for feature scaling (not hashed).
+        _svm_model: Trained SVM classifier (not hashed).
+        _rf_model: Trained Random Forest classifier (not hashed).
         cfg: Pipeline configuration with data_dir path.
 
     Returns:
@@ -111,11 +112,11 @@ def compute_model_metrics(scaler, svm_model, rf_model, cfg):
     with st.spinner("Computing test features..."):
         X_test, y_test = build_feature_matrix(test_paths, test_labels)
 
-    X_test_scaled = scaler.transform(X_test)
+    X_test_scaled = _scaler.transform(X_test)
 
     # Compute metrics for both models
     metrics = {}
-    for name, model in [("SVM", svm_model), ("Random Forest", rf_model)]:
+    for name, model in [("SVM", _svm_model), ("Random Forest", _rf_model)]:
         preds = model.predict(X_test_scaled)
         metrics[name] = {
             "accuracy": accuracy_score(y_test, preds),
