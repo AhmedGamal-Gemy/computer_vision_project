@@ -1,0 +1,74 @@
+# Medical Image Analysis Assistant - Configuration
+# Override any default value below. Remove sections you don't want to change.
+# All values shown are the built-in defaults.
+
+data_dir: "data/chest_xray"
+models_dir: "models"
+
+preprocessing:
+  target_size: [256, 256]
+  gaussian_kernel: [5, 5]
+  gaussian_sigma: 1.0
+  median_kernel: 5
+
+segmentation:
+  kmeans_k: 3
+  morph_kernel_size: [3, 3]
+  morph_iterations: 2
+  kmeans_iterations: 10
+  kmeans_epsilon: 1.0
+  kmeans_attempts: 10
+
+feature_extraction:
+  glcm_distances: [1]
+  glcm_angles: [0]
+  glcm_levels: 256
+
+classification:
+  svm_kernel: "rbf"
+  svm_c: 10.0
+  svm_gamma: "scale"
+  svm_random_state: 42
+  rf_n_estimators: 200
+  rf_random_state: 42
+
+augmentation:
+  max_rotation_angle: 15.0
+  brightness_range: [0.8, 1.2]
+  contrast_range: [0.8, 1.2]
+  noise_std_range: [0.01, 0.05]
+  zoom_range: [0.9, 1.1]
+  shear_range: [-5.0, 5.0]
+  translation_range: [0.1, 0.1]
+  horizontal_flip_prob: 0.5
+  vertical_flip_prob: 0.0
+
+balancing:
+  strategy: "oversample"
+  apply_balancing: true
+  oversample_noise_std: 0.01
+
+visualization:
+  figure_dpi: 150
+  figure_size_standard: [10, 6]
+  figure_size_wide: [14, 6]
+  figure_size_square: [8, 8]
+  figure_size_confusion: [10, 4]
+  figure_size_importance: [8, 5]
+  cmap_heatmap: "Blues"
+  cmap_confusion: "viridis"
+  color_normal: "#2ecc71"
+  color_pneumonia: "#e74c3c"
+  bar_color: "#3498db"
+
+explainability:
+  permutation_n_repeats: 10
+  high_influence_threshold: 0.3
+  moderate_influence_threshold: 0.1
+
+app:
+  accepted_file_types: ["jpg", "jpeg", "png"]
+  show_explainability_default: true
+  show_augmentation_default: false
+  page_title: "Medical Image Analysis"
+  page_icon: "🫁"
