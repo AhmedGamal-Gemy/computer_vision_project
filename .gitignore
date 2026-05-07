@@ -1,0 +1,83 @@
+# =============================================================================
+# Medical Image Analysis Assistant - .gitignore
+# =============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+build/
+dist/
+wheels/
+*.egg-info/
+*.egg
+
+# --- Virtual Environments ---
+.venv/
+venv/
+env/
+
+# --- uv Package Manager ---
+.uv/
+uv.lock
+
+# --- Sisyphus / OpenCode (internal tooling state) ---
+.sisyphus/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Jupyter (not used, but ignore if accidentally created) ---
+.ipynb_checkpoints/
+*.ipynb
+
+# --- Dataset (large binary files - download separately) ---
+data/
+*.zip
+*.tar.gz
+*.kaggle.json
+
+# --- Visualization Outputs (regenerate via pipeline) ---
+*.png
+*.jpg
+*.jpeg
+*.svg
+
+# --- Configuration (contains local paths / secrets) ---
+# NOTE: config.yaml is tracked. Use config.local.yaml for personal overrides.
+config.local.yaml
+
+# --- Environment / Secrets ---
+.env
+.env.local
+*.key
+*.pem
+
+# --- OS / Filesystem ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Testing / Coverage ---
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Temporary Files ---
+*.tmp
+*.bak
+*.temp
+temp/
+tmp/
